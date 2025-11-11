@@ -16,6 +16,7 @@ var (
 	pinLed gpio.PinIO
 	// dhtSensor gpio.PinIO
 	mu       sync.Mutex
+	muDht    sync.Mutex
 	ledState bool
 	edht     *dht.DHT
 )
@@ -82,6 +83,9 @@ func toggleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func tempHumiHandler(w http.ResponseWriter, r *http.Request) {
+	muDht.Lock()
+	defer mu.Unlock()
+
 	humidity, temperature, err := edht.Read()
 	if err != nil {
 		http.Error(w, "Error reading DHT11: "+err.Error(), http.StatusInternalServerError)
